@@ -2,14 +2,19 @@ package controllers;
 
 import static javax.swing.JOptionPane.showMessageDialog;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.sql.SQLException;
 import java.util.Date;
 
 import javax.swing.JTextArea;
 
 import models.Model;
+import models.Student;
 import views.CircleArea;
 
 public class Server implements Controller {
@@ -17,8 +22,9 @@ public class Server implements Controller {
 	/** Model for querying database */
 	private Model model = new Model();
 	
-	/** Gui view */
-	private CircleArea circleArea;
+	public CircleArea view = new CircleArea(this);
+	
+	public ServerSocket serverSocket;
 
 	
 	/**
@@ -28,26 +34,59 @@ public class Server implements Controller {
 	@Override
 	public void init() {
 		try {
-			model.init();
 			System.out.println("Connected to database");
-			circleArea = new CircleArea(this);
+			model.init();
+			view.init();
+			
 		} catch(SQLException e) {
 			showMessageDialog(null, "Unable to connect to database");
-			e.printStackTrace();
 			System.exit(0);
+		}
+	}
+	
+	/**
+	 * Return array list of employees
+	 * 
+	 * @return list of employees
+	 */
+	public Student login(int id) {
+		try {
+			return model.show(id);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public void incrementRequests(Student student) {
+		try {
+			model.update(student);
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 
 
-	public void openSocket(JTextArea jta) {
+	public void openSocket() {
 		try {
-			ServerSocket socket = new ServerSocket(8000);
-			jta.append("Server started at " + new Date() + '\n');
-			
+			serverSocket = new ServerSocket(8000);
+			this.view.log("Server started at " + new Date() + "\n");
+			while (true) {
+				Socket socket = serverSocket.accept();
+				ServerThread thread = new ServerThread(socket, this);
+				thread.start();
+			}
+		} catch(IOException e) {
+			this.view.log(e.getMessage() + "\n");
+		}
+	}
+
+	public void closeSocket() {
+		try {
+			serverSocket.close();
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
 
 }

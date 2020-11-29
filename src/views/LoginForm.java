@@ -57,23 +57,35 @@ public class LoginForm extends JFrame {
 		add(p3, BorderLayout.WEST);
 		add(new JScrollPane(jta), BorderLayout.CENTER);
 		
-		
-		client.openSocket(jta);
 
 		// Add command button action listeners
 		send.addActionListener(e -> login());
-//		exit.addActionListener(new ExitListener());
+		exit.addActionListener(e -> close());
 
 		setTitle("Client");
 		setSize(500, 300);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+
+	}
+	
+	public void init() {
+		client.openSocket();
+	}
+	
+	public void log(String message) {
+		jta.append(message);
 	}
 
 	private void login() {
 		String id = jtf.getText();
-		Student s = client.login(Integer.parseInt(id));
-		System.out.println(s);
+		client.login(id);
 	}
+	
+	private void close() {
+		client.close();
+		dispose();
+	}
+	
 
 }

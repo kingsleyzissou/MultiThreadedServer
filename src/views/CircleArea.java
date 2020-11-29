@@ -1,8 +1,12 @@
 package views;
 
 import java.awt.BorderLayout;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Date;
 
 import javax.swing.JButton;
@@ -13,6 +17,7 @@ import javax.swing.JTextArea;
 
 import controllers.Client;
 import controllers.Server;
+import models.Student;
 
 public class CircleArea extends JFrame {
 
@@ -37,7 +42,7 @@ public class CircleArea extends JFrame {
 
 		// Add command button action listeners
 		newClient.addActionListener(e -> createClient());
-//		exit.addActionListener(new ExitListener());
+		exit.addActionListener(e -> exit());
 
 		// Add the exit button to a new panel
 		JPanel p3 = new JPanel();
@@ -54,7 +59,17 @@ public class CircleArea extends JFrame {
 		setSize(500, 300);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
-		server.openSocket(jta);
+	
+		
+		
+	}
+	
+	public void log(String message) {
+		jta.append(message);
+	}
+
+	public void init() {
+		server.openSocket();
 	}
 
 	private void createClient() {
@@ -63,6 +78,12 @@ public class CircleArea extends JFrame {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void exit() {
+		System.out.println("Closing server. Goodbye...");
+		server.closeSocket();
+		System.exit(0);
 	}
 
 }
