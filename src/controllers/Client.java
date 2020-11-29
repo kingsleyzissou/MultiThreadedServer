@@ -17,14 +17,13 @@ import views.CircleArea;
 import views.LoginForm;
 
 public class Client implements Controller {
-	
-	/** Model for querying database */
-	private Model model = new Model();
+
 	
 	// IO streams and socket
-	private DataOutputStream toServer;
-	private DataInputStream fromServer;
-	private Socket socket;
+	private DataOutputStream outputStream;
+	private DataInputStream inputStream;
+	
+	private LoginForm view = new LoginForm(this);
 
 
 	/**
@@ -33,29 +32,21 @@ public class Client implements Controller {
 	 */
 	@Override
 	public void init() {
-		try {
-			model.init();
-			System.out.println("Connected to database");
-			new LoginForm(this);
-		} catch(SQLException e) {
-			showMessageDialog(null, "Unable to connect to database");
-			e.printStackTrace();
-			System.exit(0);
-		}
+		view.init();
 	}
 	
-	public void openSocket(JTextArea jta) {
+	public void openSocket() {
 		try {
 			// Create a socket to connect to the server
 			Socket socket = new Socket("localhost", 8000);
 
 			// Create an input stream to receive data from the server
-			fromServer = new DataInputStream(socket.getInputStream());
+			inputStream = new DataInputStream(socket.getInputStream());
 
 			// Create an output stream to send data to the server
-			toServer = new DataOutputStream(socket.getOutputStream());
-		} catch (IOException ex) {
-			jta.append(ex.getMessage() + "\n");
+			outputStream = new DataOutputStream(socket.getOutputStream());
+		} catch (IOException e) {
+			view.log(e.getMessage() + "\n");
 		}
 	}
 
@@ -64,13 +55,23 @@ public class Client implements Controller {
 	 * 
 	 * @return list of employees
 	 */
-	public Student login(int id) {
+	public void login(String studentId) {
 		try {
-			return model.show(id);
-		} catch (SQLException e) {
+			outputStream.writeUTF(studentId);
+			outputStream.flush();
+			String result = inputStream.readUTF();
+			view.log(result + "\n\n");
+		} catch (IOException e) {
 			e.printStackTrace();
-//			view.showError("Error fetching Employees");
-			return null;
+			view.log(e.getMessage() + "\n");
+		}
+	}
+
+	public void close() {
+		try {
+			outputStream.writeUTF("exit");
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 

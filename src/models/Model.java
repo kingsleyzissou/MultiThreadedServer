@@ -101,13 +101,14 @@ public class Model {
 				+ "SNAME=?, "
 				+ "STUD_ID=?, "
 				+ "TOT_REQ=? "
-				+ "WHERE id=?";
+				+ "WHERE SID=?";
+		System.out.println(s.requests);
 		PreparedStatement stmt = this.connection.prepareStatement(sql);
 		stmt.setString(1, s.firstname);
 		stmt.setString(2, s.lastname);
 		stmt.setInt(3, s.student_id);
 		stmt.setInt(4, s.requests);
-		stmt.setInt(7, s.student_id);
+		stmt.setInt(5, s.id);
 		stmt.executeUpdate();
 		stmt.close();
 	}
