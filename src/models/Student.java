@@ -1,5 +1,12 @@
 package models;
 
+/**
+ * Student object that is used
+ * for the model throughout the application.
+ * 
+ * @author Gianluca (20079110)
+ *
+ */
 public class Student {
 	
 	// public fields are used to simplify code

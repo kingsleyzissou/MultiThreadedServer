@@ -2,42 +2,53 @@ package controllers;
 
 import static javax.swing.JOptionPane.showMessageDialog;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
-import java.util.Date;
-
-import javax.swing.JTextArea;
+import java.text.DecimalFormat;
 
 import models.Model;
 import models.Student;
-import views.CircleArea;
+import utils.Timestamp;
+import views.ServerView;
 
-public class Server implements Controller {
+/**
+ * Server controller for managing the
+ * server view and the corresponding
+ * controller actions
+ * 
+ * @author Gianluca (20079110)
+ *
+ */
+public class Server {
 	
 	/** Model for querying database */
 	private Model model = new Model();
 	
-	public CircleArea view = new CircleArea(this);
-	
+	/** Server socket connection */
 	public ServerSocket serverSocket;
+	
+	/** Server view component */
+	public ServerView view = new ServerView(this);
 
 	
 	/**
-	 * Method to instantiate the controller,
-	 * create the model and render the view
+	 * Instantiate the model, open the server socket
+	 * and create a for loop to listen for socket connections
+	 * from the client
+	 * 
 	 */
-	@Override
 	public void init() {
 		try {
-			System.out.println("Connected to database");
 			model.init();
-			view.init();
-			
+			serverSocket = new ServerSocket(8000);
+			view.log(Timestamp.now() + "\n");
+			view.log("Connected to database\n");
+			view.log("Server started \n");
+			listen();
+		} catch(IOException e) {
+			view.log(e.getMessage() + "\n");
 		} catch(SQLException e) {
 			showMessageDialog(null, "Unable to connect to database");
 			System.exit(0);
@@ -45,19 +56,48 @@ public class Server implements Controller {
 	}
 	
 	/**
-	 * Return array list of employees
+	 * Listen for socket connections and create
+	 * new threads accordingly
 	 * 
-	 * @return list of employees
+	 * @throws IOException
 	 */
-	public Student login(int id) {
+	private void listen() throws IOException {
+		while (true) {
+			Socket socket = serverSocket.accept();
+			ServerThread thread = new ServerThread(socket, this);
+			thread.start();
+		}
+	}
+	
+	/**
+	 * Create a new client with a new socket
+	 * connection
+	 * 
+	 */
+	public void createThread() {
+		new Client();
+	}
+	
+	/**
+	 * Find the a student by ID 
+	 * 
+	 * @return student
+	 */
+	public Student find(int id) {
 		try {
-			return model.show(id);
+			return model.find(id);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 	
+	/**
+	 * Update the student in the database
+	 * with the incremented request
+	 * 
+	 * @param student
+	 */
 	public void incrementRequests(Student student) {
 		try {
 			model.update(student);
@@ -65,27 +105,32 @@ public class Server implements Controller {
 			e.printStackTrace();
 		}
 	}
-
-
-	public void openSocket() {
-		try {
-			serverSocket = new ServerSocket(8000);
-			this.view.log("Server started at " + new Date() + "\n");
-			while (true) {
-				Socket socket = serverSocket.accept();
-				ServerThread thread = new ServerThread(socket, this);
-				thread.start();
-			}
-		} catch(IOException e) {
-			this.view.log(e.getMessage() + "\n");
-		}
+	
+	/**
+	 * Calculate the area of a circle from
+	 * the given radius
+	 * 
+	 * @param radius for the area calculation
+	 * @return area of a circle
+	 */
+	public String calculateArea(int radius) {
+		// Format the area to 2 decimal places
+		DecimalFormat df = new DecimalFormat("0.00");
+		// Return the value
+		return df.format(Math.PI * Math.pow(radius, 2));
 	}
 
-	public void closeSocket() {
-		try {
+
+	/**
+	 * Close the server socket
+	 * 
+	 * @throws IOException
+	 */
+	public void closeSocket() throws IOException {
+		// check if socket is open
+		// to prevent null pointer
+		if (serverSocket != null) {
 			serverSocket.close();
-		} catch(IOException e) {
-			e.printStackTrace();
 		}
 	}
 
