@@ -7,8 +7,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import core.DBConnection;
+import utils.DBConnection;
 
+/**
+ * Model object for handling database
+ * transactions for a student object.
+ * 
+ * @author Gianluca (20079110)
+ *
+ */
 public class Model {
 	
 	private Connection connection = null;
@@ -23,10 +30,10 @@ public class Model {
 	}
 
 	/**
-	 * Method to get all the employees
+	 * Method to get all the students
 	 * from the database
 	 * 
-	 * @return list of all employees
+	 * @return list of all students
 	 * @throws SQLException
 	 */
 	public ArrayList<Student> all() throws SQLException {
@@ -50,13 +57,13 @@ public class Model {
 	}
 	
 	/**
-	 * Return a specific employee by id
+	 * Return a specific student by id
 	 * 
-	 * @param id of employee
-	 * @return employee
+	 * @param id of student
+	 * @return student
 	 * @throws SQLException
 	 */
-	public Student show(int id) throws SQLException {
+	public Student find(int id) throws SQLException {
 		Statement stmt = this.connection.createStatement();
 		stmt.executeQuery("SELECT * FROM students WHERE STUD_ID = " + id);
 		ResultSet res = stmt.getResultSet();
@@ -73,9 +80,9 @@ public class Model {
 	}
 	
 	/**
-	 * Add employee to the database
+	 * Add student to the database
 	 * 
-	 * @param e employee to be added to database
+	 * @param e student to be added to database
 	 * @throws SQLException
 	 */
 	public void create(Student e) throws SQLException {
@@ -90,9 +97,9 @@ public class Model {
 	}
 	
 	/**
-	 * Edit existing database employee
+	 * Edit existing database student
 	 * 
-	 * @param e employee to be updated
+	 * @param e student to be updated
 	 * @throws SQLException
 	 */
 	public void update(Student s) throws SQLException {
@@ -102,7 +109,6 @@ public class Model {
 				+ "STUD_ID=?, "
 				+ "TOT_REQ=? "
 				+ "WHERE SID=?";
-		System.out.println(s.requests);
 		PreparedStatement stmt = this.connection.prepareStatement(sql);
 		stmt.setString(1, s.firstname);
 		stmt.setString(2, s.lastname);
@@ -114,9 +120,9 @@ public class Model {
 	}
 	
 	/**
-	 * Delete existing database employee
+	 * Delete existing database student
 	 * 
-	 * @param e employee to be deleted
+	 * @param e student to be deleted
 	 * @throws SQLException
 	 */
 	public void delete(Student s) throws SQLException {

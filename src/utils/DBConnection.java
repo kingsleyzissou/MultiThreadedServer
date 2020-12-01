@@ -1,10 +1,20 @@
-package core;
+package utils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * Singleton database connection class.
+ * The class statically instantiates a database connection.
+ * Subsequent requests for a database connection will not
+ * create a new database connection, but return the previously
+ * created connection.
+ * 
+ * @author Gianluca (20079110)
+ *
+ */
 public class DBConnection {
 	
 	/** The name of the MySQL account to use (or empty for anonymous) */
