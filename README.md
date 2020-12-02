@@ -39,3 +39,13 @@ A student not in the database will not be authenticated and will not be taken to
 
 ![](img/error.png)
 
+## Architecture
+
+The project makes use of an MVC approach for the client and the server. The server is responsable for updating the server view and the client is responsable for the client view. The model is used to retrieve student information from the database. 
+
+New threads are created from the server when a socket is opened from a new client.
+
+The class diagram can be seen below
+
+![](assign2_class_uml.png)
+
