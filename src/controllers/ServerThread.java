@@ -8,7 +8,6 @@ import java.net.Socket;
 
 import models.Student;
 import utils.Timestamp;
-import views.ClientView;
 
 /**
  * ServerThread class for managing new threads
@@ -116,6 +115,11 @@ public class ServerThread extends Thread {
 	 * @throws IOException
 	 */
 	private void handleRequest(String payload) throws IOException {
+		if(payload.equals("logout")) {
+			logout();
+			return;
+		}
+		
 		// convert the payload from a string to a number
 		int number = parseNumber(payload);
 		
@@ -169,6 +173,31 @@ public class ServerThread extends Thread {
 			"Welcome " + student.firstname + " " + student.lastname
 			+ "! You are now connected to the Server. \n"
 			+ "Please enter the radius of a circle\n"
+		);
+	}
+	
+	/**
+	 * Function for creating a new session for a student
+	 * so they they can send requests to the server
+	 * for calculating the area of a circle
+	 * 
+	 * @param studentNumber - id for authentication
+	 * @throws IOException
+	 */
+	private void logout() throws IOException {
+		outputStream.writeUTF("[Server] Logging out student number: " + student.student_id + "\n");
+		printClientDetails();
+		server.view.log("Logout request with student id: " + student.student_id + "\n");
+
+		// set the session user
+		this.student = null;
+		server.view.log(Timestamp.now() + "\n");
+		server.view.log("[Response] Logout successful\n\n");
+		// inform the client that login was successful
+		outputStream.writeBoolean(false);
+		// provide feedback message
+		outputStream.writeUTF(
+			"Thank you, you have been logged out\n"
 		);
 	}
 	
